@@ -84,5 +84,27 @@ function xmldb_tool_dataprivacy_upgrade($oldversion) {
     // Automatically generated Moodle v3.11.0 release upgrade line.
     // Put any upgrade step following this.
 
+    // MDL-67852: Security overview report shows critical warning for
+    // "Default role for all users" with default requestdelete config.
+    if ($oldversion < 2023061400) {
+        // Get the capability id for tool/dataprivacy:requestdelete.
+        $capabilityid = $DB->get_record(
+            'capabilities',
+            array('name' => 'tool/dataprivacy:requestdelete', 'component' => 'tool_dataprivacy', 'riskbitmask' => RISK_DATALOSS),
+            'id'
+        );
+
+        // Update the capability riskbitmask to 0 for tool/dataprivacy:requestdelete.
+        if ($capabilityid) {
+            $capability = new stdClass();
+            $capability->id = $capabilityid->id;
+            $capability->riskbitmask = 0;
+            $DB->update_record('capabilities', $capability);
+        }
+
+        // Dataprivacy savepoint reached.
+        upgrade_plugin_savepoint(true, 2023061400, 'tool', 'dataprivacy');
+    }
+
     return true;
 }

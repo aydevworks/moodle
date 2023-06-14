@@ -95,7 +95,10 @@ class defaultuserrole extends check {
             $legacyok = false;
         }
 
-        if ($riskycount or !$legacyok) {
+        // Check if the automatic data deletion request approval is enabled.
+        $automaticdatadeletionapproval = get_config('tool_dataprivacy', 'automaticdatadeletionapproval');
+
+        if ($riskycount or !$legacyok or $automaticdatadeletionapproval) {
             $status = result::CRITICAL;
             $summary = get_string('check_defaultuserrole_error', 'report_security', role_get_name($defaultrole));
 
