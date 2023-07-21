@@ -655,6 +655,15 @@ $functions = array(
         'ajax' => true,
         'services' => array(MOODLE_OFFICIAL_MOBILE_SERVICE),
     ),
+    'core_course_get_enrolled_courses_without_summary_by_timeline_classification' => array(
+        'classname' => 'core_course_external',
+        'methodname' => 'get_enrolled_courses_without_summary_by_timeline_classification',
+        'classpath' => 'course/externallib.php',
+        'description' => 'List of enrolled courses for the given timeline classification (past, inprogress, or future).',
+        'type' => 'read',
+        'ajax' => true,
+        'services' => array(MOODLE_OFFICIAL_MOBILE_SERVICE),
+    ),
     'core_course_get_enrolled_courses_with_action_events_by_timeline_classification' => array(
         'classname' => '\core_course\external\get_enrolled_courses_with_action_events_by_timeline_classification',
         'methodname' => 'execute',

@@ -39,7 +39,7 @@ import * as Notification from 'core/notification';
  */
 export const getEnrolledCoursesByTimeline = args => {
     const request = {
-        methodname: 'core_course_get_enrolled_courses_by_timeline_classification',
+        methodname: 'core_course_get_enrolled_courses_without_summary_by_timeline_classification',
         args: args
     };
 
