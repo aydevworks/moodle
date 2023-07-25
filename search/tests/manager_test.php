@@ -348,7 +348,7 @@ class manager_test extends \advanced_testcase {
         $this->assertEquals(2, $searcharea->get_last_indexing_duration());
 
         // Add a label.
-        $generator->create_module('label', ['course' => $course->id, 'intro' => 'Vampire']);
+        $generator->create_module('label', ['name' => 'Vampire', 'course' => $course->id, 'intro' => 'Vampire']);
 
         // Wait to next second (so as to not reindex the label more than once, as it will now
         // be timed before the indexing run).
