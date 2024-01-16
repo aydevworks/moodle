@@ -240,6 +240,21 @@ function lti_get_course_content_items(\core_course\local\entity\content_item $de
 
     $types = [];
 
+    // The 'External tool' entry (the main module content item), should always take the id of 1.
+    if (has_capability('mod/lti:addcoursetool', context_course::instance($course->id), $user)) {
+        $types = [new \core_course\local\entity\content_item(
+            1,
+            $defaultmodulecontentitem->get_name(),
+            $defaultmodulecontentitem->get_title(),
+            $defaultmodulecontentitem->get_link(),
+            $defaultmodulecontentitem->get_icon(),
+            $defaultmodulecontentitem->get_help(),
+            $defaultmodulecontentitem->get_archetype(),
+            $defaultmodulecontentitem->get_component_name(),
+            $defaultmodulecontentitem->get_purpose()
+        )];
+    }
+
     // Use of a tool type, whether site or course level, is controlled by the following cap.
     if (!has_capability('mod/lti:addpreconfiguredinstance', \core\context\course::instance($course->id), $user)) {
         return $types;
@@ -288,6 +303,19 @@ function mod_lti_get_all_content_items(\core_course\local\entity\content_item $d
     require_once($CFG->dirroot . '/mod/lti/locallib.php'); // For access to constants.
 
     $types = [];
+
+    // The 'External tool' entry (the main module content item), should always take the id of 1.
+    $types = [new \core_course\local\entity\content_item(
+        1,
+        $defaultmodulecontentitem->get_name(),
+        $defaultmodulecontentitem->get_title(),
+        $defaultmodulecontentitem->get_link(),
+        $defaultmodulecontentitem->get_icon(),
+        $defaultmodulecontentitem->get_help(),
+        $defaultmodulecontentitem->get_archetype(),
+        $defaultmodulecontentitem->get_component_name(),
+        $defaultmodulecontentitem->get_purpose()
+    )];
 
     foreach (lti_get_lti_types() as $ltitype) {
         if ($ltitype->coursevisible != LTI_COURSEVISIBLE_ACTIVITYCHOOSER) {
