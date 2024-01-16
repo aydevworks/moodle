@@ -519,7 +519,6 @@ function upgrade_stale_php_files_present(): bool {
         '/grade/amd/src/searchwidget/group.js',
         '/lib/behat/extension/Moodle/BehatExtension/Locator/FilesystemSkipPassedListLocator.php',
         '/lib/classes/task/legacy_plugin_cron_task.php',
-        '/mod/lti/ajax.php',
         '/pix/f/archive.png',
         '/user/repository.php',
         // Removed in 4.2.
