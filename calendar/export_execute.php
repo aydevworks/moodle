@@ -65,6 +65,8 @@ $calendartype = \core_calendar\type_factory::get_calendar_instance();
 
 $what = optional_param('preset_what', 'all', PARAM_ALPHA);
 $time = optional_param('preset_time', 'weeknow', PARAM_ALPHA);
+$startdate = optional_param('custom_start_date', '', PARAM_TEXT);
+$enddate = optional_param('custom_end_date', '', PARAM_TEXT);
 
 $now = $calendartype->timestamp_to_date_array(time());
 
@@ -77,6 +79,8 @@ if (!empty($generateurl)) {
     $params = array();
     $params['preset_what'] = $what;
     $params['preset_time'] = $time;
+    $params['custom_start_date'] = $startdate;
+    $params['custom_end_date'] = $enddate;
     $params['userid'] = $userid;
     $params['authtoken'] = $authtoken;
     $params['generateurl'] = true;
@@ -85,6 +89,7 @@ if (!empty($generateurl)) {
     redirect($link->out());
     die;
 }
+
 $paramcategory = false;
 if(!empty($what) && !empty($time)) {
     if(in_array($what, $allowedwhat) && in_array($time, $allowedtime)) {
@@ -204,8 +209,16 @@ if(!empty($what) && !empty($time)) {
             break;
             case 'custom':
                 // Events based on custom date range.
-                $timestart = time() - $CFG->calendar_exportlookback * DAYSECS;
-                $timeend = time() + $CFG->calendar_exportlookahead * DAYSECS;
+                if ($startdate >= time() - $CFG->calendar_exportlookback * DAYSECS) {
+                    $timestart = $startdate;
+                } else {
+                    //throw error
+                }
+                if ($enddate <= time() + $CFG->calendar_exportlookahead * DAYSECS) {
+                    $timeend = $enddate;
+                } else {
+                    //throw error
+                }
             break;
         }
     }

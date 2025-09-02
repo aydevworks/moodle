@@ -85,6 +85,14 @@ class core_calendar_export_form extends moodleform {
         $mform->addGroupRule('period', get_string('required'), 'required');
         $mform->setDefault('period', 'recentupcoming');
 
+        $mform->addElement('date_selector', 'exportstartdate', get_string('customexportfrom', 'calendar'));
+        $mform->addElement('date_selector', 'exportenddate', get_string('customexportto', 'calendar'));
+        $defaultstartdate = $now - $CFG->calendar_exportlookback * DAYSECS;
+        $defaultenddate = $now + $CFG->calendar_exportlookahead * DAYSECS;
+        $mform->setDefault('exportstartdate', $defaultstartdate);
+        $mform->setDefault('exportenddate', $defaultenddate);
+
+
         $buttons = array();
         $buttons[] = $mform->createElement('submit', 'generateurl', get_string('generateurlbutton', 'calendar'));
         $buttons[] = $mform->createElement('submit', 'export', get_string('exportbutton', 'calendar'));
