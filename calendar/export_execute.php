@@ -209,16 +209,8 @@ if(!empty($what) && !empty($time)) {
             break;
             case 'custom':
                 // Events based on custom date range.
-                if ($startdate >= time() - $CFG->calendar_exportlookback * DAYSECS) {
                     $timestart = $startdate;
-                } else {
-                    //throw error
-                }
-                if ($enddate <= time() + $CFG->calendar_exportlookahead * DAYSECS) {
                     $timeend = $enddate;
-                } else {
-                    //throw error
-                }
             break;
         }
     }

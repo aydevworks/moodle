@@ -122,4 +122,23 @@ class core_calendar_export_form extends moodleform {
         $buttons[] = $mform->createElement('submit', 'export', get_string('exportbutton', 'calendar'));
         $mform->addGroup($buttons);
     }
+
+    function validation($data, $files) {
+        global $CFG;
+        $errors = parent::validation($data, $files);
+
+        if ($data['exportstartdate'] < time() - 86400 - $CFG->calendar_exportlookback * DAYSECS) {
+            $errors['exportstartdate'] = get_string('errorinvalidexportstartdate', 'calendar');
+        }
+
+        if ($data['exportenddate'] > time() + 86400 + $CFG->calendar_exportlookahead * DAYSECS) {
+            $errors['exportenddate'] = get_string('errorinvalidexportenddate', 'calendar');
+        }
+
+        if ($data['exportstartdate'] > $data['exportenddate']) {
+            $errors['exportenddate'] = get_string('errorinvalidexportdateorder', 'calendar');
+        }
+
+        return $errors;
+    }
 }
