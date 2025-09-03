@@ -85,6 +85,30 @@ class core_calendar_export_form extends moodleform {
         $mform->addGroupRule('period', get_string('required'), 'required');
         $mform->setDefault('period', 'recentupcoming');
 
+
+        // 1) Make sure $now exists regardless of the config flag.
+        $now = time();
+
+        // 2) Hide/disable the date pickers unless 'custom' is selected.
+        //   (Use both dependency names to cover grouped radios.)
+        $mform->hideIf('exportstartdate', 'timeperiod', 'neq', 'custom');
+        $mform->hideIf('exportenddate',   'timeperiod', 'neq', 'custom');
+        $mform->hideIf('exportstartdate', 'period[timeperiod]', 'neq', 'custom');
+        $mform->hideIf('exportenddate',   'period[timeperiod]', 'neq', 'custom');
+
+        $mform->disabledIf('exportstartdate', 'timeperiod', 'neq', 'custom');
+        $mform->disabledIf('exportenddate',   'timeperiod', 'neq', 'custom');
+        $mform->disabledIf('exportstartdate', 'period[timeperiod]', 'neq', 'custom');
+        $mform->disabledIf('exportenddate',   'period[timeperiod]', 'neq', 'custom');
+
+        // 3) Set defaults safely (now will always exist).
+        $defaultstartdate = $now - (int)$CFG->calendar_exportlookback * DAYSECS;
+        $defaultenddate   = $now + (int)$CFG->calendar_exportlookahead * DAYSECS;
+        $mform->setDefault('exportstartdate', $defaultstartdate);
+        $mform->setDefault('exportenddate',   $defaultenddate);
+
+
+
         $mform->addElement('date_selector', 'exportstartdate', get_string('customexportfrom', 'calendar'));
         $mform->addElement('date_selector', 'exportenddate', get_string('customexportto', 'calendar'));
         $defaultstartdate = $now - $CFG->calendar_exportlookback * DAYSECS;
