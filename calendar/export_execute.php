@@ -22,6 +22,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use core\url;
+
 define('NO_MOODLE_COOKIES', true);
 
 require_once('../config.php');
@@ -233,6 +235,7 @@ foreach($events as $event) {
         if (empty($instances[$event->instance]->uservisible)) {
             continue;
         }
+        $moduleurl = new url(sprintf('/mod/%s/view.php', $event->modulename), ['id' => $instances[$event->instance]->id]);
     }
     $hostaddress = str_replace('http://', '', $CFG->wwwroot);
     $hostaddress = str_replace('https://', '', $hostaddress);
@@ -249,6 +252,11 @@ foreach($events as $event) {
     // Then convert it to plain text, since it's the only format allowed for the event description property.
     // We use html_to_text in order to convert <br> and <p> tags to new line characters for descriptions in HTML format.
     $description = html_to_text($description, 0);
+
+    // Add module URL if available.
+    if (!empty($moduleurl)) {
+        $description = empty($description) ? $moduleurl->out(false) : $description . "\n" . $moduleurl->out(false);
+    }
     $ev->add_property('description', $description);
 
     $ev->add_property('class', 'PUBLIC'); // PUBLIC / PRIVATE / CONFIDENTIAL
