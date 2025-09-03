@@ -127,12 +127,17 @@ class core_calendar_export_form extends moodleform {
         global $CFG;
         $errors = parent::validation($data, $files);
 
+        $exportstartdatelimit = time() - $CFG->calendar_exportlookback * DAYSECS;
+        $exportenddatelimit = time() + $CFG->calendar_exportlookahead * DAYSECS;
+
         if ($data['exportstartdate'] < time() - 86400 - $CFG->calendar_exportlookback * DAYSECS) {
-            $errors['exportstartdate'] = get_string('errorinvalidexportstartdate', 'calendar');
+            $a = userdate($exportstartdatelimit, get_string('strftimedatefullshort', 'langconfig'));
+            $errors['exportstartdate'] = get_string('errorinvalidexportstartdate', 'calendar', $a);
         }
 
         if ($data['exportenddate'] > time() + 86400 + $CFG->calendar_exportlookahead * DAYSECS) {
-            $errors['exportenddate'] = get_string('errorinvalidexportenddate', 'calendar');
+            $a = userdate($exportenddatelimit, get_string('strftimedatefullshort', 'langconfig'));
+            $errors['exportenddate'] = get_string('errorinvalidexportenddate', 'calendar', $a);
         }
 
         if ($data['exportstartdate'] > $data['exportenddate']) {
