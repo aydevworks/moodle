@@ -138,7 +138,7 @@ class behat_util extends testing_util {
                 $task->execute();
                 \core\task\manager::adhoc_task_complete($task);
             } catch (\Throwable $e) {
-                error_log('Adhoc task failed during behat install: ' . get_class($task) . ' - ' . $e->getMessage());
+                mtrace('Adhoc task failed during behat install: ' . get_class($task) . ' - ' . $e->getMessage());
                 \core\task\manager::adhoc_task_failed($task);
                 throw $e;
             }
