@@ -52,12 +52,14 @@ class lock {
         $this->factory = $factory;
         $this->key = $key;
         $this->released = false;
-        $caller = debug_backtrace(true, 2)[1];
-        if ($caller && array_key_exists('file', $caller ) ) {
+        $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+        $caller = $trace[1] ?? [];
+        if ($caller && array_key_exists('file', $caller)) {
             $this->caller = $caller['file'] . ' on line ' . $caller['line'];
         } else if ($caller && array_key_exists('class', $caller)) {
             $this->caller = $caller['class'] . $caller['type'] . $caller['function'];
         }
+        $this->caller .= "\n Full stack trace:\n" . format_backtrace($trace, true);
     }
 
     /**
