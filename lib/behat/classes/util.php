@@ -134,8 +134,14 @@ class behat_util extends testing_util {
 
         // Execute all the adhoc tasks.
         while ($task = \core\task\manager::get_next_adhoc_task(time())) {
-            $task->execute();
-            \core\task\manager::adhoc_task_complete($task);
+            try {
+                $task->execute();
+                \core\task\manager::adhoc_task_complete($task);
+            } catch (\Throwable $e) {
+                error_log('Adhoc task failed during behat install: ' . get_class($task) . ' - ' . $e->getMessage());
+                \core\task\manager::adhoc_task_failed($task);
+                throw $e;
+            }
         }
 
         // Keeps the current version of database and dataroot.
