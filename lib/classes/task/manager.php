@@ -811,45 +811,60 @@ class manager {
 
             if ($lock = $cronlockfactory->get_lock('adhoc_' . $record->id, 0)) {
 
-                // Safety check, see if the task has already been processed by another cron run (or attempted and failed).
-                // If another cron run attempted to process the task and failed, nextruntime will be in the future.
-                $record = $DB->get_record_select('task_adhoc',
-                    "id = :id AND nextruntime < :timestart",
-                    ['id' => $record->id, 'timestart' => $timestart]);
-                if (!$record) {
-                    $lock->release();
-                    unset(self::$miniqueue[$taskid]);
-                    continue;
-                }
-
-                // Safety check in case the task in the DB does not match a real class (maybe something was uninstalled).
                 try {
-                    $task = self::adhoc_task_from_record($record);
-                } catch (\moodle_exception $e) {
-                    debugging("Failed to load task: $record->classname", DEBUG_DEVELOPER);
-                    $lock->release();
-                    unset(self::$miniqueue[$taskid]);
-                    continue;
-                }
-
-                $tasklimit = $task->get_concurrency_limit();
-                if ($checklimits && $tasklimit > 0) {
-                    if ($concurrencylock = self::get_concurrent_task_lock($task)) {
-                        $task->set_concurrency_lock($concurrencylock);
-                    } else {
-                        // Unable to obtain a concurrency lock.
-                        mtrace("Skipping $record->classname adhoc task class as the per-task limit of $tasklimit is reached.");
-                        $skipclasses[] = $record->classname;
-                        unset(self::$miniqueue[$taskid]);
+                    // Safety check, see if the task has already been processed by another cron run (or attempted and failed).
+                    // If another cron run attempted to process the task and failed, nextruntime will be in the future.
+                    $record = $DB->get_record_select('task_adhoc',
+                        "id = :id AND nextruntime < :timestart",
+                        ['id' => $record->id, 'timestart' => $timestart]);
+                    if (!$record) {
                         $lock->release();
+                        unset(self::$miniqueue[$taskid]);
                         continue;
                     }
+
+                    // Safety check in case the task in the DB does not match a real class (maybe something was uninstalled).
+                    try {
+                        $task = self::adhoc_task_from_record($record);
+                    } catch (\moodle_exception $e) {
+                        debugging("Failed to load task: $record->classname", DEBUG_DEVELOPER);
+                        $lock->release();
+                        unset(self::$miniqueue[$taskid]);
+                        continue;
+                    }
+
+                    $tasklimit = $task->get_concurrency_limit();
+                    if ($checklimits && $tasklimit > 0) {
+                        if ($concurrencylock = self::get_concurrent_task_lock($task)) {
+                            $task->set_concurrency_lock($concurrencylock);
+                        } else {
+                            // Unable to obtain a concurrency lock.
+                            mtrace("Skipping $record->classname adhoc task class as the per-task limit of $tasklimit is reached.");
+                            $skipclasses[] = $record->classname;
+                            unset(self::$miniqueue[$taskid]);
+                            $lock->release();
+                            continue;
+                        }
+                    }
+
+                    self::set_locks($task, $lock, $cronlockfactory);
+                    unset(self::$miniqueue[$taskid]);
+
+                    return $task;
+                } catch (\Throwable $e) {
+                    fwrite(STDERR, PHP_EOL
+                        . '=== UNRELEASED LOCK IN get_next_adhoc_task ===' . PHP_EOL
+                        . 'Task class : ' . ($record->classname ?? 'unknown') . PHP_EOL
+                        . 'Task ID    : ' . ($record->id ?? 'unknown') . PHP_EOL
+                        . 'Error      : ' . $e->getMessage() . PHP_EOL
+                        . 'Location   : ' . $e->getFile() . ':' . $e->getLine() . PHP_EOL
+                        . 'Trace      : ' . format_backtrace($e->getTrace(), true) . PHP_EOL
+                        . '===============================================' . PHP_EOL . PHP_EOL
+                    );
+                    $lock->release();
+                    unset(self::$miniqueue[$taskid]);
+                    throw $e;
                 }
-
-                self::set_locks($task, $lock, $cronlockfactory);
-                unset(self::$miniqueue[$taskid]);
-
-                return $task;
             } else {
                 unset(self::$miniqueue[$taskid]);
             }
