@@ -852,15 +852,19 @@ class manager {
 
                     return $task;
                 } catch (\Throwable $e) {
-                    fwrite(STDERR, PHP_EOL
-                        . '=== UNRELEASED LOCK IN get_next_adhoc_task ===' . PHP_EOL
-                        . 'Task class : ' . ($record->classname ?? 'unknown') . PHP_EOL
-                        . 'Task ID    : ' . ($record->id ?? 'unknown') . PHP_EOL
-                        . 'Error      : ' . $e->getMessage() . PHP_EOL
-                        . 'Location   : ' . $e->getFile() . ':' . $e->getLine() . PHP_EOL
-                        . 'Trace      : ' . format_backtrace($e->getTrace(), true) . PHP_EOL
-                        . '===============================================' . PHP_EOL . PHP_EOL
-                    );
+                    $lines = [
+                        '',
+                        '=== UNRELEASED LOCK IN get_next_adhoc_task ===',
+                        'Task class : ' . ($record->classname ?? 'unknown'),
+                        'Task ID    : ' . ($record->id ?? 'unknown'),
+                        'Error      : ' . $e->getMessage(),
+                        'Location   : ' . $e->getFile() . ':' . $e->getLine(),
+                        'Trace      : ' . format_backtrace($e->getTrace(), true),
+                        '===============================================',
+                        '',
+                    ];
+                    fwrite(STDERR, implode(PHP_EOL, $lines));
+                    mtrace(implode(PHP_EOL, $lines));
                     $lock->release();
                     unset(self::$miniqueue[$taskid]);
                     throw $e;
