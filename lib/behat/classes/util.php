@@ -138,7 +138,17 @@ class behat_util extends testing_util {
                 $task->execute();
                 \core\task\manager::adhoc_task_complete($task);
             } catch (\Throwable $e) {
-                mtrace('Adhoc task failed during behat install: ' . get_class($task) . ' - ' . $e->getMessage());
+                mtrace('');
+                mtrace('=== ADHOC TASK FAILED DURING BEHAT INSTALL ===');
+                mtrace('Task class  : ' . get_class($task));
+                mtrace('Task ID     : ' . $task->get_id());
+                mtrace('Custom data : ' . $task->get_custom_data_as_string());
+                mtrace('Error       : ' . $e->getMessage());
+                mtrace('Location    : ' . $e->getFile() . ':' . $e->getLine());
+                mtrace('Trace       :');
+                mtrace(format_backtrace($e->getTrace(), true));
+                mtrace('===============================================');
+                mtrace('');
                 \core\task\manager::adhoc_task_failed($task);
                 throw $e;
             }
