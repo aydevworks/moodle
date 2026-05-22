@@ -114,7 +114,7 @@ class lock {
         if (!$this->released && defined('PHPUNIT_TEST')) {
             $key = $this->key;
             $this->release();
-            throw new \coding_exception("A lock was created but not released at:\n" .
+            throw new \coding_exception("HAHAHA A lock was created but not released at:\n" .
                                         $this->caller . "\n\n" .
                                         " Code should look like:\n\n" .
                                         " \$factory = \core\lock\lock_config::get_lock_factory('type');\n" .
